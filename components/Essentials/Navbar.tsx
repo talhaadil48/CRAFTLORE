@@ -1,11 +1,20 @@
-// app/components/Navbar.tsx
-import React, { useState, useEffect } from 'react';
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
+import { ChevronDown, Menu, X, Twitter, Facebook, Linkedin, BarChart3 } from 'lucide-react';
+import Image from 'next/image';
+
+interface SubmenuItem {
+  title: string;
+  href: string;
+  submenu?: SubmenuItem[];
+}
 
 interface MenuItemProps {
   title: string;
   href: string;
-  submenu?: MenuItemProps[];
+  submenu?: SubmenuItem[];
 }
 
 const menuItems: MenuItemProps[] = [
@@ -95,7 +104,7 @@ const menuItems: MenuItemProps[] = [
     ],
   },
   {
-    title: "ABOUT CRATFLORE",
+    title: "ABOUT CRAFTLORE",
     href: "#",
     submenu: [
       { title: "MISSION", href: "/about/mission" },
@@ -140,94 +149,179 @@ const menuItems: MenuItemProps[] = [
   },
 ];
 
-const Navbar: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // For demo; integrate with auth in real app
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const renderMenuItem = (item: MenuItemProps, depth: number = 0) => {
-    const hasSubmenu = !!item.submenu && item.submenu.length > 0;
-
-    return (
-      <div key={item.title} className="relative group">
-        <Link
-          href={item.href}
-          className={`px-4 py-2 text-sm font-medium transition-colors duration-300 ${
-            depth === 0
-              ? 'text-white hover:text-amber-300'
-              : 'text-gray-300 hover:text-white'
-          }`}
-        >
-          {item.title}
-        </Link>
-        {hasSubmenu && (
-          <div
-            className={`absolute left-0 mt-0 w-48 bg-gray-900 shadow-lg rounded-lg overflow-hidden z-50 transform scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 ease-in-out ${
-              depth > 0 ? 'top-full left-[-100%]' : 'top-full'
-            }`}
-          >
-            {item.submenu.map((subItem) => renderMenuItem(subItem, depth + 1))}
-          </div>
-        )}
-      </div>
-    );
-  };
+export default function Navbar() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openMobileDropdown, setOpenMobileDropdown] = useState<string | null>(null);
 
   return (
-    <nav
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out ${
-        isScrolled
-          ? 'h-16 bg-gray-900/90 shadow-md'
-          : 'h-24 bg-gradient-to-b from-gray-900 to-gray-800 shadow-lg'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-full">
-        <Link
-          href="/"
-          className={`font-bold transition-all duration-300 ${
-            isScrolled ? 'text-2xl' : 'text-3xl'
-          } bg-gradient-to-r from-amber-400 to-amber-600 text-transparent bg-clip-text`}
-        >
-          CRAFTLORE
-        </Link>
-        <div className="flex items-center space-x-6">
-          {menuItems.map((item) => renderMenuItem(item))}
-        </div>
-        <div className="flex items-center space-x-4">
-          {isLoggedIn ? (
-            <Link
-              href="/profile"
-              className="px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-full hover:bg-amber-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
-            >
-              Profile
-            </Link>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="px-4 py-2 text-sm font-medium text-amber-300 border border-amber-300 rounded-full hover:bg-amber-300 hover:text-gray-900 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
-              >
-                Login
-              </Link>
-              <Link
-                href="/register"
-                className="px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-full hover:bg-amber-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
-              >
-                Register
-              </Link>
-            </>
-          )}
+    <>
+      {/* Top Bar */}
+      <div className="bg-[var(--primary)] text-white border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14">
+            <div className="flex items-center gap-4 text-sm flex-1 justify-center">
+              <span className="text-[var(--secondary)] font-bold">Craftlore</span>
+              <span className="hidden sm:inline text-gray-300">- Kashmir Craft Repository System</span>
+              <div className="hidden md:flex items-center gap-2">
+                <div className="w-px h-4 bg-[var(--secondary)]/30" />
+                <span className="text-xs text-gray-400">Initiative of Hamadan Craft Revival Foundation</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <button className="px-4 py-1.5 bg-[var(--secondary)] text-[var(--primary)] rounded-lg text-sm font-medium hover:bg-[var(--secondary)]/90 transition-colors">
+                Register / Login
+              </button>
+              <div className="hidden sm:flex items-center gap-2">
+                <a href="#" className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors">
+                  <Twitter className="w-4 h-4" />
+                </a>
+                <a href="#" className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors">
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a href="#" className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors">
+                  <Linkedin className="w-4 h-4" />
+                </a>
+                <a href="#" className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors">
+                  <BarChart3 className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </nav>
-  );
-};
 
-export default Navbar;
+      {/* Main Navigation */}
+      <nav className="bg-white shadow-lg sticky top-0 z-50">
+        <div className="w-full px-4 sm:px-6">
+          <div className="flex items-center justify-between h-20">
+            
+            {/* Logo - Left Aligned */}
+            <Link href="/" className="flex items-center gap-3 flex-shrink-0">
+              <div className="w-14 h-14 bg-[var(--primary)] rounded-full flex items-center justify-center border-2 border-[var(--secondary)]">
+                <span className="text-[var(--secondary)] font-bold text-lg">CL</span>
+              </div>
+              <div className="hidden sm:block">
+                <div className="text-[var(--primary)] font-bold text-base leading-tight">CRAFTLORE</div>
+                <div className="text-xs text-gray-500">CRAFT REPOSITORY</div>
+              </div>
+            </Link>
+
+            {/* Desktop Menu - All in One Line */}
+            <div className="hidden xl:flex items-center flex-1 justify-end gap-1">
+              {menuItems.map((item) => (
+                <div
+                  key={item.title}
+                  className="relative group"
+                  onMouseEnter={() => setOpenDropdown(item.title)}
+                  onMouseLeave={() => setOpenDropdown(null)}
+                >
+                  <Link
+                    href={item.href}
+                    className="flex items-center gap-1 px-3 py-2 text-xs font-bold text-[var(--primary)] hover:text-[var(--secondary)] transition-colors whitespace-nowrap"
+                  >
+                    {item.title}
+                    {item.submenu && (
+                      <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180" />
+                    )}
+                  </Link>
+
+                  {/* Dropdown Menu */}
+                  {item.submenu && openDropdown === item.title && (
+                    <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                      {item.submenu.map((subItem) => (
+                        <div key={subItem.title} className="relative group/sub">
+                          <Link
+                            href={subItem.href}
+                            className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-[var(--secondary)]/10 hover:text-[var(--primary)] transition-colors"
+                          >
+                            <span>{subItem.title}</span>
+                            {subItem.submenu && <ChevronDown className="w-4 h-4 -rotate-90" />}
+                          </Link>
+
+                          {/* Nested Dropdown */}
+                          {subItem.submenu && (
+                            <div className="absolute left-full top-0 ml-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200">
+                              {subItem.submenu.map((nestedItem) => (
+                                <Link
+                                  key={nestedItem.title}
+                                  href={nestedItem.href}
+                                  className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-[var(--secondary)]/10 hover:text-[var(--primary)] transition-colors"
+                                >
+                                  {nestedItem.title}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6 text-[var(--primary)]" />
+              ) : (
+                <Menu className="w-6 h-6 text-[var(--primary)]" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="xl:hidden bg-white border-t border-gray-200 max-h-[calc(100vh-140px)] overflow-y-auto">
+            <div className="px-4 py-4 space-y-2">
+              {menuItems.map((item) => (
+                <div key={item.title}>
+                  {item.submenu ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          setOpenMobileDropdown(openMobileDropdown === item.title ? null : item.title);
+                        }}
+                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-[var(--primary)] hover:bg-gray-50 rounded-lg transition-colors"
+                      >
+                        <span>{item.title}</span>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${openMobileDropdown === item.title ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {openMobileDropdown === item.title && (
+                        <div className="ml-4 mt-2 space-y-1">
+                          {item.submenu.map((subItem) => (
+                            <Link
+                              key={subItem.title}
+                              href={subItem.href}
+                              className="block px-4 py-2 text-sm text-gray-600 hover:text-[var(--secondary)] hover:bg-gray-50 rounded-lg transition-colors"
+                            >
+                              {subItem.title}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className="block px-4 py-3 text-sm font-semibold text-[var(--primary)] hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                      {item.title}
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </nav>
+    </>
+  );
+}
